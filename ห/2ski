@@ -1,0 +1,105 @@
+# 2SKI — FiveM Panel | cook45 x clack | iex-ready
+[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;$OutputEncoding=[System.Text.Encoding]::UTF8
+chcp 65001 >$null 2>&1;$Host.UI.RawUI.WindowTitle="2SKI"
+Add-Type @"
+using System;using System.Runtime.InteropServices;using System.Diagnostics;
+public class M{
+[DllImport("kernel32.dll")]public static extern IntPtr OpenProcess(uint a,bool b,int c);
+[DllImport("kernel32.dll")]public static extern bool ReadProcessMemory(IntPtr h,IntPtr a,byte[] buf,int s,out int r);
+[DllImport("kernel32.dll")]public static extern bool WriteProcessMemory(IntPtr h,IntPtr a,byte[] buf,int s,out int w);
+[DllImport("kernel32.dll")]public static extern bool CloseHandle(IntPtr h);
+[DllImport("kernel32.dll")]public static extern bool GetExitCodeProcess(IntPtr h,out uint c);
+public static IntPtr hp=IntPtr.Zero;public static IntPtr mb=IntPtr.Zero;
+public static bool At(string n){
+var p=Process.GetProcessesByName(n.Replace(".exe",""));
+if(p.Length==0)return false;
+hp=OpenProcess(0x0438,false,p[0].Id);
+if(hp==IntPtr.Zero)return false;
+try{mb=p[0].MainModule.BaseAddress;}catch{mb=IntPtr.Zero;}return true;}
+public static bool Av(){if(hp==IntPtr.Zero)return false;uint c;GetExitCodeProcess(hp,out c);return c==259;}
+public static void Dt(){if(hp!=IntPtr.Zero){CloseHandle(hp);hp=IntPtr.Zero;}}
+public static long RP(long a){byte[] b=new byte[8];int r;ReadProcessMemory(hp,(IntPtr)a,b,8,out r);return BitConverter.ToInt64(b,0);}
+public static float RF(long a){byte[] b=new byte[4];int r;ReadProcessMemory(hp,(IntPtr)a,b,4,out r);return BitConverter.ToSingle(b,0);}
+public static byte RB(long a){byte[] b=new byte[1];int r;ReadProcessMemory(hp,(IntPtr)a,b,1,out r);return b[0];}
+public static void WF(long a,float v){int w;WriteProcessMemory(hp,(IntPtr)a,BitConverter.GetBytes(v),4,out w);}
+public static void WB(long a,byte v){int w;WriteProcessMemory(hp,(IntPtr)a,new byte[]{v},1,out w);}
+public static void WI(long a,int v){int w;WriteProcessMemory(hp,(IntPtr)a,BitConverter.GetBytes(v),4,out w);}
+}
+"@
+$O=@{W=0x25B14B0;PP=0x08;HP=0x280;HM=0x2A0;AR=0x150C;GD=0x189;PX=0x90;PY=0x94;PZ=0x98
+PI=0x10C8;WN=0x888;ST=0xCF0;SM=0xCF4;RS=0xCF8;SS=0xCFC
+WM=0x10B8;WO=0x20;WI=0x10;WD=0xB0;WH=0xFC;WR=0x88;WS=0x74;AI=0x60;AC=0x18
+VH=0xD30;VP=0x87C;VM=0x880;VB=0x884;VE=0x908}
+$PR=@{
+Low=@{HM=2.0;DB=1.15;RC=0.35;SP=1.5;RN=1.08;RH=2.0;RA=1.0;D="Stealth - undetectable"}
+Medium=@{HM=1.2;DB=1.4;RC=0.15;SP=0.8;RN=1.18;RH=5.0;RA=2.5;D="Advantage - semi-legit"}
+High=@{HM=0.5;DB=2.0;RC=0.0;SP=0.0;RN=1.35;RH=10.0;RA=5.0;D="Full power - risky"}}
+$script:cp="NONE";$script:go=$true;$script:ak=$false
+function xLP{$b=[M]::mb.ToInt64();$w=[M]::RP($b+$O.W);if($w-eq 0){return 0};[M]::RP($w+$O.PP)}
+function xPI{$p=xLP;if($p-eq 0){return 0};[M]::RP($p+$O.PI)}
+function xWI{$p=xLP;if($p-eq 0){return 0};$m=[M]::RP($p+$O.WM);if($m-eq 0){return 0};$o=[M]::RP($m+$O.WO);if($o-eq 0){return 0};[M]::RP($o+$O.WI)}
+function xVH{$p=xLP;if($p-eq 0){return 0};[M]::RP($p+$O.VH)}
+function Do-A([string]$lv){
+$c=$PR[$lv];if(-not $c){return};$pd=xLP;if($pd-eq 0){return}
+$wp=xWI;if($wp-ne 0){[M]::WF($wp+$O.WH,$c.HM);[M]::WF($wp+$O.WR,$c.RC);[M]::WF($wp+$O.WS,$c.SP)}
+$pi=xPI;if($pi-ne 0){[M]::WF($pi+$O.RS,$c.RN);$ms=[M]::RF($pi+$O.SM);if($ms-le 0){$ms=100.0};[M]::WF($pi+$O.ST,$ms);[M]::WI($pi+$O.WN,0)}
+$hp=[M]::RF($pd+$O.HP);$mx=[M]::RF($pd+$O.HM);if($hp-lt $mx -and $hp-gt 0){[M]::WF($pd+$O.HP,[Math]::Min($hp+$c.RH,$mx))}
+$ar=[M]::RF($pd+$O.AR);if($ar-lt 100){[M]::WF($pd+$O.AR,[Math]::Min($ar+$c.RA,100.0))}
+$vh=xVH;if($vh-ne 0){[M]::WF($vh+$O.VP,1000.0);[M]::WF($vh+$O.VM,1000.0);[M]::WF($vh+$O.VB,1000.0);[M]::WF($vh+$O.VE,1000.0)}}
+function Do-R{
+$pd=xLP;if($pd-eq 0){return};$wp=xWI;if($wp-ne 0){[M]::WF($wp+$O.WH,3.0);[M]::WF($wp+$O.WR,0.5);[M]::WF($wp+$O.WS,2.0)}
+$pi=xPI;if($pi-ne 0){[M]::WF($pi+$O.RS,1.0);[M]::WF($pi+$O.SS,1.0)}
+$fg=[M]::RB($pd+$O.GD);[M]::WB($pd+$O.GD,[byte]($fg-band 0xFE));$script:cp="NONE"}
+function Do-C{
+$h=(Get-PSReadlineOption -EA SilentlyContinue);if($h){$f=$h.HistorySavePath;if($f -and (Test-Path $f)){Remove-Item $f -Force -EA SilentlyContinue}}
+Clear-History -EA SilentlyContinue
+$r="$env:APPDATA\Microsoft\Windows\Recent";if(Test-Path $r){Get-ChildItem $r -Force -EA SilentlyContinue|Remove-Item -Force -EA SilentlyContinue}
+Get-ChildItem $env:TEMP -Force -EA SilentlyContinue|Where-Object{$_.Name-match"2SKI|fivem.*trainer"}|Remove-Item -Force -Recurse -EA SilentlyContinue
+Set-Clipboard -Value "" -EA SilentlyContinue
+try{wevtutil cl "Windows PowerShell" 2>$null}catch{};try{wevtutil cl "Microsoft-Windows-PowerShell/Operational" 2>$null}catch{}
+try{Remove-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" -Name * -Force -EA SilentlyContinue}catch{}}
+function UI{
+Clear-Host;Write-Host ""
+Write-Host "    +-----------------------------------------------+" -Fore DarkCyan
+Write-Host "    |                                               |" -Fore DarkCyan
+Write-Host "    |" -Fore DarkCyan -NoN;Write-Host "    222222  SSSSS  KK  KK IIIII" -Fore Cyan -NoN;Write-Host "            |" -Fore DarkCyan
+Write-Host "    |" -Fore DarkCyan -NoN;Write-Host "        22  SS     KK KK    II " -Fore Cyan -NoN;Write-Host "            |" -Fore DarkCyan
+Write-Host "    |" -Fore DarkCyan -NoN;Write-Host "     22222   SSSS  KKKK     II " -Fore White -NoN;Write-Host "            |" -Fore DarkCyan
+Write-Host "    |" -Fore DarkCyan -NoN;Write-Host "    22          SS KK KK    II " -Fore Cyan -NoN;Write-Host "            |" -Fore DarkCyan
+Write-Host "    |" -Fore DarkCyan -NoN;Write-Host "    222222  SSSSS  KK  KK IIIII" -Fore Cyan -NoN;Write-Host "            |" -Fore DarkCyan
+Write-Host "    |                                               |" -Fore DarkCyan
+Write-Host "    +-----------------------------------------------+" -Fore DarkCyan
+Write-Host "";Write-Host "         [+] " -Fore Green -NoN;Write-Host "CMD 2SKI BY cook45 x clack" -Fore White -NoN;Write-Host " [+]" -Fore Green
+Write-Host "         [" -Fore DarkGray -NoN;Write-Host "============================" -Fore Cyan -NoN;Write-Host "]" -Fore DarkGray;Write-Host ""
+if($script:ak){Write-Host "    Status: " -Fore Gray -NoN;Write-Host "CONNECTED" -Fore Green -NoN;Write-Host " | Active: " -Fore Gray -NoN
+switch($script:cp){"Low"{Write-Host "Low" -Fore Green}"Medium"{Write-Host "Medium" -Fore Yellow}"High"{Write-Host "High" -Fore Red}default{Write-Host "None" -Fore DarkGray}}
+}else{Write-Host "    Status: " -Fore Gray -NoN;Write-Host "WAITING" -Fore Red -NoN;Write-Host " - Start FiveM and join server" -Fore DarkGray};Write-Host ""
+$a1=if($script:cp-eq"Low"){" <"}else{""};Write-Host " > " -Fore White -NoN;Write-Host "[1]" -Fore Cyan -NoN;Write-Host " Low$a1" -Fore Green
+$a2=if($script:cp-eq"Medium"){" <"}else{""};Write-Host " > " -Fore White -NoN;Write-Host "[2]" -Fore Cyan -NoN;Write-Host " Medium$a2" -Fore Yellow
+$a3=if($script:cp-eq"High"){" <"}else{""};Write-Host " > " -Fore White -NoN;Write-Host "[3]" -Fore Cyan -NoN;Write-Host " High$a3" -Fore Red
+Write-Host "";Write-Host " > " -Fore White -NoN;Write-Host "[4]" -Fore Cyan -NoN;Write-Host " Reset" -Fore Magenta
+Write-Host " > " -Fore White -NoN;Write-Host "[5]" -Fore Cyan -NoN;Write-Host " Clean History" -Fore DarkYellow;Write-Host ""
+if($script:cp-ne"NONE" -and $PR.ContainsKey($script:cp)){$c=$PR[$script:cp]
+Write-Host "    +--- Active Config ---" -Fore DarkGray
+Write-Host "    | Headshot  : x$($c.HM)" -Fore DarkGray;Write-Host "    | DMG Boost : x$($c.DB)" -Fore DarkGray
+Write-Host "    | Recoil    : $($c.RC)" -Fore DarkGray;Write-Host "    | Spread    : $($c.SP)" -Fore DarkGray
+Write-Host "    | Run Speed : x$($c.RN)" -Fore DarkGray;Write-Host "    | HP Regen  : +$($c.RH)/tick" -Fore DarkGray
+Write-Host "    | $($c.D)" -Fore DarkGray;Write-Host "    +---------------------" -Fore DarkGray;Write-Host ""}
+Write-Host "    Press 1-5 to select, ESC to exit" -Fore DarkGray;Write-Host ""}
+function Msg([string]$t,[string]$c="Green"){Write-Host "";Write-Host "    >> $t" -Fore $c;Start-Sleep -Milliseconds 500}
+function TryCon{if([M]::At("FiveM_b3258_GTAProcess")){$script:ak=$true;return $true};$script:ak=$false;return $false}
+try{$Host.UI.RawUI.BufferSize=New-Object System.Management.Automation.Host.Size(80,50)
+$Host.UI.RawUI.WindowSize=New-Object System.Management.Automation.Host.Size(80,38)}catch{}
+TryCon|Out-Null
+while($script:go){UI;$k=$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+switch($k.Character){
+'1'{if(-not $script:ak){TryCon|Out-Null};if($script:ak){$script:cp="Low";Do-A "Low";Msg "LOW - Stealth active" "Green"}else{Msg "FiveM not found!" "Red"}}
+'2'{if(-not $script:ak){TryCon|Out-Null};if($script:ak){$script:cp="Medium";Do-A "Medium";Msg "MEDIUM - Advantage on" "Yellow"}else{Msg "FiveM not found!" "Red"}}
+'3'{if(-not $script:ak){TryCon|Out-Null};if($script:ak){$script:cp="High";Do-A "High";Msg "HIGH - Full power!" "Red"}else{Msg "FiveM not found!" "Red"}}
+'4'{if($script:ak){Do-R};$script:cp="NONE";Msg "RESET - Values restored" "Magenta"}
+'5'{Do-C;Msg "CLEAN - All history wiped" "DarkYellow"}}
+if($k.VirtualKeyCode-eq 27){$script:go=$false}
+if($script:cp-ne"NONE" -and $script:ak){Do-A $script:cp}
+if($script:ak -and -not [M]::Av()){$script:ak=$false;$script:cp="NONE"}}
+Write-Host "";Write-Host "    [*] Cleanup..." -Fore Yellow
+if($script:ak){Do-R;[M]::Dt()};Write-Host "    [+] 2SKI closed." -Fore Green;Write-Host ""
