@@ -3118,6 +3118,15 @@ local function fetchServerList()
     return labels
 end
 
+local function queueScriptOnTeleport()
+    local qot = queue_on_teleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport)
+    if qot then
+        pcall(function()
+            qot('loadstring(game:HttpGet("https://raw.githubusercontent.com/MxdLL/2khub/main/main.lua?t=" .. tick()))()')
+        end)
+    end
+end
+
 local function performServerHop(targetServerId)
     queueScriptOnTeleport()
     if _G.TwoSkiLoaded then
